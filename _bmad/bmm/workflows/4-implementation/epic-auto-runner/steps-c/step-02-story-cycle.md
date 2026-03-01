@@ -80,7 +80,7 @@ Auto-accept: all outputs
 Do not ask for confirmation
 ```
 
-On success: commit via Git MCP with message: `"create-story epic-{epic_number} story-{story_number}"`
+On success: append to error log: `[OK] create-story epic-{epic_number} story-{story_number}: complete` then commit via Git MCP with message: `"create-story epic-{epic_number} story-{story_number}"`
 On failure: append to error log:
 ```
 ## [FAILED] create-story epic-{epic_number} story-{story_number}
@@ -101,7 +101,7 @@ Auto-accept: all outputs
 Do not ask for confirmation
 ```
 
-On success: commit via Git MCP with message: `"dev-story epic-{epic_number} story-{story_number}"`
+On success: append to error log: `[OK] dev-story epic-{epic_number} story-{story_number}: complete` then commit via Git MCP with message: `"dev-story epic-{epic_number} story-{story_number}"`
 On failure: append to error log:
 ```
 ## [FAILED] dev-story epic-{epic_number} story-{story_number}
@@ -117,12 +117,12 @@ Spawn a fresh sub-agent with this context:
 Agent: DEV (bmad-agent-bmm-dev)
 Task: Run the code-review workflow for Epic {epic_number}, Story {story_number}
 Workflow: /bmad-bmm-code-review
-Context: story file path, code changes from dev-story
+Context: story file path, git diff of changes committed by dev-story (run `git diff HEAD~1` to get the diff and pass it)
 Auto-accept: all outputs, apply all fixes automatically
 Do not ask for confirmation
 ```
 
-On success: commit via Git MCP with message: `"code-review epic-{epic_number} story-{story_number}"`
+On success: append to error log: `[OK] code-review epic-{epic_number} story-{story_number}: complete` then commit via Git MCP with message: `"code-review epic-{epic_number} story-{story_number}"`
 On failure: append to error log:
 ```
 ## [FAILED] code-review epic-{epic_number} story-{story_number}
@@ -145,7 +145,8 @@ Display: **Story cycle complete for all epics. Proceeding to epic wrap-up...**
 
 #### EXECUTION RULES:
 
-- This is an auto-proceed step with no user choices
+- This is an auto-proceed step with no user choices - no halt required
+- This is intentional: the workflow is fully autonomous after step-01
 - Proceed directly to next step after all stories are processed
 
 #### Menu Handling Logic:

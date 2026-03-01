@@ -3,7 +3,6 @@ name: 'step-01-init'
 description: 'Validate Git MCP, accept epic numbers, load sprint-status.yaml, resolve stories'
 
 nextStepFile: './step-02-story-cycle.md'
-advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.xml'
 ---
 
 # Step 1: Initialization
@@ -117,7 +116,7 @@ Launch a subprocess that:
 If subprocess unavailable: load and parse sprint-status.yaml directly in main thread.
 
 **Validate results:**
-- If any requested epic number is not found in sprint-status.yaml: warn the user with the list of missing epics and ask if they want to continue with the found epics only
+- If any requested epic number is not found in sprint-status.yaml: display the list of missing epics, then require explicit user confirmation (Y to continue with found epics only, N to halt)
 - If no stories are found at all: halt with error message
 
 Store results as `stories_per_epic` (map of epic → story list) in working context.

@@ -44,7 +44,7 @@ For each epic, run the epic-level wrap-up cycle autonomously: automate (QA test 
 
 ## CONTEXT BOUNDARIES:
 
-- Available: epic_numbers, error_log_path from step-01
+- Available: epic_numbers, stories_per_epic, error_log_path from step-01
 - Focus: Epic-level wrap-up only (automate, retrospective)
 - Limits: Do NOT re-run story-level steps here
 - Dependencies: step-02 must have completed (even partially)
@@ -113,7 +113,8 @@ Display: **Epic wrap-up complete for all epics. Proceeding to completion summary
 
 #### EXECUTION RULES:
 
-- This is an auto-proceed step with no user choices
+- This is an auto-proceed step with no user choices - no halt required
+- This is intentional: the workflow is fully autonomous after step-01
 - Proceed directly to next step after all epics are wrapped up
 
 #### Menu Handling Logic:
