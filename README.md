@@ -8,6 +8,95 @@ This repo exists to **build, share, and catalogue** reusable agentic tools — c
 
 ---
 
+## Getting started
+
+### New project (no BMAD yet)
+
+```bash
+# 1. Create your project and install BMAD
+mkdir my-project && cd my-project
+git init
+npx bmad-method
+# Follow the prompts — pick your modules (bmm, cis, tea, etc.)
+# This creates the _bmad/ folder with all platform agents and workflows
+
+# 2. Clone agentic-kit somewhere and copy the custom pieces you want
+git clone https://github.com/<your-org>/agentic-kit.git /tmp/agentic-kit
+
+# Copy a custom agent (e.g. Forge)
+cp -r /tmp/agentic-kit/_bmad/agents/toolkit-advisor/ ./_bmad/agents/
+cp -r /tmp/agentic-kit/_bmad/_memory/toolkit-advisor-sidecar/ ./_bmad/_memory/
+
+# Copy a custom workflow (e.g. Epic Auto Runner)
+cp -r /tmp/agentic-kit/_bmad/bmm/workflows/4-implementation/epic-auto-runner/ \
+      ./_bmad/bmm/workflows/4-implementation/
+
+# Copy the slash commands for your IDE
+# Claude Code:
+cp /tmp/agentic-kit/.claude/commands/bmad-bmm-epic-auto-runner.md ./.claude/commands/
+# OpenCode:
+cp /tmp/agentic-kit/.opencode/commands/bmad-bmm-epic-auto-runner.md ./.opencode/commands/
+
+# 3. Register in manifests
+# Add agent row to _bmad/_config/agent-manifest.csv
+# Add workflow row to _bmad/_config/workflow-manifest.csv
+
+# 4. Set your name
+# Edit _bmad/bmm/config.yaml → user_name: YourName
+
+# 5. Open in Claude Code or OpenCode and start using slash commands
+```
+
+### Existing BMAD project
+
+If you already have a `_bmad/` folder in your project, you just copy the custom pieces in:
+
+```bash
+# From the agentic-kit repo, copy what you need:
+
+# Custom agent (Forge)
+cp -r agentic-kit/_bmad/agents/toolkit-advisor/ your-project/_bmad/agents/
+cp -r agentic-kit/_bmad/_memory/toolkit-advisor-sidecar/ your-project/_bmad/_memory/
+
+# Custom workflow (Epic Auto Runner)
+cp -r agentic-kit/_bmad/bmm/workflows/4-implementation/epic-auto-runner/ \
+      your-project/_bmad/bmm/workflows/4-implementation/
+
+# Slash commands — copy only the ones for the pieces you added
+# Claude Code:
+cp agentic-kit/.claude/commands/bmad-bmm-epic-auto-runner.md your-project/.claude/commands/
+# OpenCode:
+cp agentic-kit/.opencode/commands/bmad-bmm-epic-auto-runner.md your-project/.opencode/commands/
+
+# Register: add rows to your project's agent-manifest.csv and workflow-manifest.csv
+```
+
+That's it — no install step, no rebuild. The next time you open the project in your AI IDE, the new slash commands are available.
+
+### Use agentic-kit as your workspace directly
+
+If you don't have a separate project and want to use this repo as-is (e.g. to experiment, build new agents, or run the BMAD lifecycle from here):
+
+```bash
+git clone https://github.com/<your-org>/agentic-kit.git
+cd agentic-kit
+
+# Edit _bmad/bmm/config.yaml → user_name: YourName
+# Open in Claude Code or OpenCode — everything is pre-wired
+```
+
+### Use a standalone agent outside BMAD
+
+Some agents (like Forge) are designed to work without the full BMAD platform. You only need three things:
+
+1. The agent file — `_bmad/agents/toolkit-advisor/toolkit-advisor.agent.yaml`
+2. The sidecar memory — `_bmad/_memory/toolkit-advisor-sidecar/`
+3. A minimal `config.yaml` with `user_name` and `communication_language`
+
+Copy those into any project, wire up a slash command for your IDE, and it works.
+
+---
+
 ## Custom agents
 
 ### Forge — Agentic Toolkit Advisor
