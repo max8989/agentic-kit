@@ -105,7 +105,8 @@ Copy those into any project, wire up a slash command for your IDE, and it works.
 
 ## Custom agents
 
-### Forge — Agentic Toolkit Advisor
+<details>
+<summary><strong>Forge — Agentic Toolkit Advisor</strong> · Scans projects, recommends MCPs/skills/models · <code>Live</code></summary>
 
 **What it is:** A standalone agent that scans any project, identifies your tech stack, and recommends the right MCPs, skills, AI models, and workflows — specific to what's actually in your codebase. It has persistent memory across sessions and tracks patterns across projects.
 
@@ -151,11 +152,14 @@ Copy those into any project, wire up a slash command for your IDE, and it works.
 **Docs:** [creation report](_bmad-output/bmb-creations/agent-completion-toolkit-advisor.md) | [validation report](_bmad-output/bmb-creations/validation-report-toolkit-advisor.md)  
 **Status:** Live
 
+</details>
+
 ---
 
 ## Custom workflows
 
-### Epic Auto Runner — Autonomous Build Cycle
+<details>
+<summary><strong>Epic Auto Runner — Autonomous Build Cycle</strong> · Batch-executes epics hands-off · <code>Live</code></summary>
 
 **What it is:** A fully autonomous workflow that takes specified epics and runs the complete implementation cycle — story creation, dev implementation, code review, QA test generation, and retrospective — without manual intervention between steps. Each sub-step is executed by a dedicated BMAD agent (SM, Dev, QA) spawned with fresh context, and every successful step is committed via Git MCP.
 
@@ -192,31 +196,48 @@ See the **[full process flow with Mermaid chart, step details, and design decisi
 **Docs:** [process flow & chart](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/epic-auto-runner-process-flow.md) | [creation plan](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/workflow-plan-autonomous-build-cycle.md) | [validation report](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/validation-report-epic-auto-runner-2026-03-01.md)  
 **Status:** Live
 
+</details>
+
 ---
 
 ## Custom test suites (planned)
 
 Test suites that validate agents and workflows behave correctly. None are built yet — this is where contributions are most needed.
 
-### Agent compliance checker
+<details>
+<summary><strong>Agent compliance checker</strong> · Validates agent structure and required fields · <code>Planned</code></summary>
 
 **What it would do:** Verify every agent has the required activation steps, persona block, menu structure, and config loading. Run it before merging a new agent PR.
 
-### Workflow integrity validator
+</details>
+
+<details>
+<summary><strong>Workflow integrity validator</strong> · Checks paths, entry/exit points, templates · <code>Planned</code></summary>
 
 **What it would do:** Check that workflows have proper entry/exit points, all referenced file paths exist, and templates are valid. Catch broken references before they hit a user.
 
-### Agent regression suite
+</details>
+
+<details>
+<summary><strong>Agent regression suite</strong> · Catches behavioural regressions via known prompts · <code>Planned</code></summary>
 
 **What it would do:** Feed known prompts to agents, verify outputs match expected structure and content. Catch behavioural regressions when agent files are edited.
 
-### Cross-agent handoff tests
+</details>
+
+<details>
+<summary><strong>Cross-agent handoff tests</strong> · Validates artefact compatibility between agents · <code>Planned</code></summary>
 
 **What it would do:** Validate that artefacts produced by one agent (e.g. a PRD from the PM) are consumable by the next agent in the pipeline (e.g. the Architect). Ensure the workflow chain doesn't break.
 
-### Manifest consistency checker
+</details>
+
+<details>
+<summary><strong>Manifest consistency checker</strong> · Finds orphaned agents missing from manifests · <code>Planned</code></summary>
 
 **What it would do:** Verify all agents and workflows on disk are registered in their manifest CSVs and have corresponding IDE slash commands. Catch "orphaned" agents that exist but aren't wired up.
+
+</details>
 
 ---
 
