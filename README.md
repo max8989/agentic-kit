@@ -53,6 +53,7 @@ This repo exists to **build, share, and catalogue** reusable agentic tools — c
 
 **Location:** `_bmad/agents/toolkit-advisor/`  
 **Memory:** `_bmad/_memory/toolkit-advisor-sidecar/` (persistent across sessions)  
+**Docs:** [creation report](_bmad-output/bmb-creations/agent-completion-toolkit-advisor.md) | [validation report](_bmad-output/bmb-creations/validation-report-toolkit-advisor.md)  
 **Status:** Live
 
 ---
@@ -61,7 +62,7 @@ This repo exists to **build, share, and catalogue** reusable agentic tools — c
 
 ### Epic Auto Runner — Autonomous Build Cycle
 
-**What it is:** A fully autonomous workflow that takes specified epics and runs the complete implementation cycle — dev story, code review, QA test generation, and retrospective — without manual intervention between steps.
+**What it is:** A fully autonomous workflow that takes specified epics and runs the complete implementation cycle — story creation, dev implementation, code review, QA test generation, and retrospective — without manual intervention between steps. Each sub-step is executed by a dedicated BMAD agent (SM, Dev, QA) spawned with fresh context, and every successful step is committed via Git MCP.
 
 **When to use it:**
 - You have a sprint plan with stories ready and want to batch-execute them hands-off
@@ -72,15 +73,28 @@ This repo exists to **build, share, and catalogue** reusable agentic tools — c
 
 ```
 1. Run:  /bmad-bmm-epic-auto-runner
-2. The workflow asks which epics to run
-3. For each story in the epic, it autonomously executes:
-   dev story → code review → QA tests → retrospective
-4. Outputs land in _bmad-output/implementation-artifacts/
-5. No manual intervention between steps
+2. The workflow validates Git MCP is installed and sprint-status.yaml exists
+3. You enter which epic numbers to process (e.g. "2 3")
+4. It shows a run plan and you confirm with [C]
+5. From here it's fully autonomous — no more input needed
+6. Outputs land in _bmad-output/implementation-artifacts/
+7. A final summary report shows successes and failures per story
 ```
+
+**The pipeline per epic:**
+
+```
+For each story:  Create Story (SM) → Dev Story (Dev) → Code Review (Dev) → git commit each
+Then per epic:   QA Tests (QA) → Retrospective (SM) → git commit each
+On any failure:  Log error → skip to next story/epic → never block
+```
+
+See the **[full process flow with Mermaid chart, step details, and design decisions](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/epic-auto-runner-process-flow.md)**.
 
 **Location:** `_bmad/bmm/workflows/4-implementation/epic-auto-runner/`  
 **Slash command:** `/bmad-bmm-epic-auto-runner`  
+**Prerequisites:** Git MCP installed, `sprint-status.yaml` exists (run `/bmad-bmm-sprint-planning` first)  
+**Docs:** [process flow & chart](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/epic-auto-runner-process-flow.md) | [creation plan](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/workflow-plan-autonomous-build-cycle.md) | [validation report](_bmad-output/bmb-creations/workflows/autonomous-build-cycle/validation-report-epic-auto-runner-2026-03-01.md)  
 **Status:** Live
 
 ---
