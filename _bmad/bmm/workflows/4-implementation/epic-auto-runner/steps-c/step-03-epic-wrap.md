@@ -46,9 +46,9 @@ Run automate (QA test generation) for every involved epic, then run retrospectiv
 
 ## CONTEXT BOUNDARIES:
 
-- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path from step-01/step-02
-- Focus: Epic-level wrap-up only (automate, catch-up retrospective)
-- Limits: Do NOT re-run story-level steps here. Do NOT re-run retros already done inline.
+- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path, run_qa_automate, run_retro_auto from step-01/step-02
+- Focus: Epic-level wrap-up only (automate, catch-up retrospective + correct-course)
+- Limits: Do NOT re-run story-level steps here. Do NOT re-run retros already done inline. Honour run_qa_automate and run_retro_auto flags.
 - Dependencies: step-02 must have completed (even partially)
 
 ## MANDATORY SEQUENCE
@@ -67,7 +67,12 @@ For each involved epic (in order):
 
 ### 3. Automate Sub-Agent (QA Test Generation)
 
-**This runs for EVERY involved epic — no conditions.**
+**IF `run_qa_automate` is false:**
+
+Log `[SKIPPED] automate epic-{epic_number}: manual run requested by user`
+Continue to step 4.
+
+**IF `run_qa_automate` is true — runs for EVERY involved epic:**
 
 Spawn a fresh sub-agent with this context:
 ```
@@ -94,7 +99,8 @@ Continue to step 4 (do not skip retro check on automate failure).
 
 - **IF `retro_done` is true:** Log `[INFO] Epic {epic_number}: retrospective already completed inline during step-02. Skipping.` Continue to next epic.
 - **IF epic is NOT fully complete:** Log `[INFO] Epic {epic_number}: not all stories complete ({completed}/{total}). Skipping retrospective.` Continue to next epic.
-- **IF epic IS fully complete AND `retro_done` is false:** This is a catch-up — run retro now.
+- **IF `run_retro_auto` is false AND retro not done:** Log `[SKIPPED] retrospective epic-{epic_number} (catch-up): manual run requested by user` Continue to next epic.
+- **IF epic IS fully complete AND `retro_done` is false AND `run_retro_auto` is true:** This is a catch-up — run retro now.
 
 **Retrospective Sub-Agent (catch-up only):**
 
@@ -108,10 +114,38 @@ Auto-accept: all outputs
 Do not ask for confirmation
 ```
 
-On success: set `epic_completion_status[epic].retro_done = true`, commit via Git MCP with message: `"retrospective epic-{epic_number} (catch-up)"`
+On success:
+- Set `epic_completion_status[epic].retro_done = true`
+- Store `epic_completion_status[epic].retro_doc_path` = path of the retro document produced
+- Commit via Git MCP with message: `"retrospective epic-{epic_number} (catch-up)"`
+- Proceed immediately to **Correct-Course Sub-Agent** below
+
 On failure: append to error log:
 ```
 ## [FAILED] retrospective epic-{epic_number} (catch-up)
+Error: {error_details}
+Action: logged, continuing to next epic
+```
+Skip Correct-Course for this epic. Then continue to next epic (do not block).
+
+**Correct-Course Sub-Agent (catch-up — runs only after a successful catch-up retro):**
+
+Log `[CORRECT-COURSE] Epic {epic_number}: applying retrospective fixes (catch-up)...`
+
+Spawn a fresh sub-agent with this context:
+```
+Agent: Architect (bmad-agent-bmm-architect)
+Task: Run the correct-course workflow to implement fixes identified in the Epic {epic_number} retrospective
+Workflow: /bmad-bmm-correct-course
+Context: epic number, retro document path ({epic_completion_status[epic].retro_doc_path}), list of action items and significant discoveries from the retro
+Auto-accept: all outputs, apply all changes automatically
+Do not ask for confirmation
+```
+
+On success: commit via Git MCP with message: `"correct-course epic-{epic_number} (catch-up)"`
+On failure: append to error log:
+```
+## [FAILED] correct-course epic-{epic_number} (catch-up)
 Error: {error_details}
 Action: logged, continuing to next epic
 ```
@@ -143,8 +177,11 @@ Display: **Epic wrap-up complete for all involved epics. Proceeding to completio
 
 ### ✅ SUCCESS:
 
-- Automate (QA) ran for every involved epic
-- Retrospective ran only for fully complete epics not already retro'd inline
+- Automate (QA) ran for every involved epic when run_qa_automate is true
+- Automate skipped with log entry when run_qa_automate is false
+- Retrospective ran only for fully complete epics not already retro'd inline, when run_retro_auto is true
+- Retrospective skipped with log entry when run_retro_auto is false
+- Correct-course ran after every successful catch-up retro
 - Each successful step has a corresponding commit
 - All failures logged to error_log_path with context
 - No blocking or waiting for human input
@@ -154,9 +191,12 @@ Display: **Epic wrap-up complete for all involved epics. Proceeding to completio
 
 - Blocking on any error instead of logging and continuing
 - Waiting for human confirmation at any point
-- Skipping automate for an involved epic without logging
+- Running automate when run_qa_automate is false
+- Skipping automate without logging when run_qa_automate is true
 - Re-running retrospective for an epic already retro'd in step-02
 - Running retrospective for an epic not yet fully complete
+- Running retrospective when run_retro_auto is false
+- Not running correct-course after a successful catch-up retro when run_retro_auto is true
 - Processing epics in parallel instead of sequentially
 
 **Master Rule:** Skipping steps, optimizing sequences, or not following exact instructions is FORBIDDEN and constitutes SYSTEM FAILURE.

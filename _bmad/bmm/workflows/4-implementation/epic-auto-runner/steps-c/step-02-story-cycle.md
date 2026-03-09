@@ -9,7 +9,7 @@ nextStepFile: './step-03-epic-wrap.md'
 
 ## STEP GOAL:
 
-For every story in the user's ordered list, run the full story build cycle autonomously: check/create story → dev-story → code-review, committing after each step and logging any errors. After each story completes, check if that story's epic is now fully done — if so, run the retrospective immediately before continuing.
+For every story in the ordered list: check/create story → dev-story → code-review, committing after each step. After each story, check epic completion — if fully done and run_retro_auto is true, run retro then correct-course inline before continuing.
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
@@ -46,9 +46,9 @@ For every story in the user's ordered list, run the full story build cycle auton
 
 ## CONTEXT BOUNDARIES:
 
-- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path from step-01
-- Focus: Story-level build cycle + inline epic retro detection
-- Limits: Do NOT run retro for epics that are not yet fully complete
+- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path, run_qa_automate, run_retro_auto from step-01
+- Focus: Story-level build cycle + inline epic retro detection + correct-course fix application
+- Limits: Do NOT run retro for epics that are not yet fully complete; honour run_retro_auto flag
 - Dependencies: step-01 must have completed successfully
 
 ## MANDATORY SEQUENCE
@@ -143,7 +143,8 @@ Update `epic_completion_status` for this story's epic:
 
 **IF this story's epic is now fully complete AND `epic_completion_status[epic].retro_done` is false:**
 
-Log `[EPIC COMPLETE] Epic {epic_number}: all stories done. Running retrospective inline...`
+- **IF `run_retro_auto` is false:** Log `[SKIPPED] retrospective epic-{epic_number} (inline): manual run requested`, set retro_done = true, continue to next story.
+- **IF `run_retro_auto` is true:** Log `[EPIC COMPLETE] Epic {epic_number}: running retrospective inline...`
 
 **Run Retrospective Sub-Agent:**
 
@@ -157,20 +158,44 @@ Auto-accept: all outputs
 Do not ask for confirmation
 ```
 
-On success: set `epic_completion_status[epic].retro_done = true`, commit via Git MCP with message: `"retrospective epic-{epic_number}"`
+On success:
+- Set `epic_completion_status[epic].retro_done = true`
+- Store `epic_completion_status[epic].retro_doc_path` = path of the retro document produced (e.g. `{output_folder}/implementation-artifacts/epic-{epic_number}-retro-{date}.md`)
+- Commit via Git MCP with message: `"retrospective epic-{epic_number}"`
+- Proceed immediately to **Correct-Course Sub-Agent** below
+
 On failure: append to error log:
 ```
 ## [FAILED] retrospective epic-{epic_number} (inline)
 Error: {error_details}
 Action: logged, will retry in step-03 wrap-up
 ```
-Do NOT set retro_done to true (step-03 will catch it).
+Do NOT set retro_done to true (step-03 will catch it). Skip Correct-Course for this epic now.
 
-**IF epic is NOT fully complete:** Continue to next story.
+**Correct-Course Sub-Agent (runs only after a successful retro):**
 
-**IF retro already done for this epic:** Continue to next story.
+Log `[CORRECT-COURSE] Epic {epic_number}: applying retrospective fixes...`
 
-Then proceed to the next story in `ordered_stories`.
+Spawn a fresh sub-agent with this context:
+```
+Agent: Architect (bmad-agent-bmm-architect)
+Task: Run the correct-course workflow to implement fixes identified in the Epic {epic_number} retrospective
+Workflow: /bmad-bmm-correct-course
+Context: epic number, retro document path ({epic_completion_status[epic].retro_doc_path}), list of action items and significant discoveries from the retro
+Auto-accept: all outputs, apply all changes automatically
+Do not ask for confirmation
+```
+
+On success: commit via Git MCP with message: `"correct-course epic-{epic_number}"`
+On failure: append to error log:
+```
+## [FAILED] correct-course epic-{epic_number} (inline)
+Error: {error_details}
+Action: logged, continuing
+```
+Then continue (do not block).
+
+**IF epic is NOT fully complete OR retro already done:** Continue to next story.
 
 ### 7. Auto-Proceed to Epic Wrap
 
@@ -198,7 +223,9 @@ Display: **Story cycle complete for all {N} stories. Proceeding to epic wrap-up 
 - Stories processed in exact user-specified order — no reordering
 - Each successful step has a corresponding commit
 - Epic completion checked after every story
-- Retro triggered inline when epic fully completes
+- Retro triggered inline when epic fully completes AND run_retro_auto is true
+- Retro skipped with log entry when run_retro_auto is false
+- Correct-course triggered after each successful inline retro
 - All failures logged to error_log_path with context
 - No blocking or waiting for human input
 - Proceeds autonomously to step-03
@@ -211,6 +238,7 @@ Display: **Story cycle complete for all {N} stories. Proceeding to epic wrap-up 
 - Processing stories in parallel instead of sequentially
 - Reordering stories from the user-specified order
 - Not checking epic completion after each story
-- Not running retro when an epic is fully complete
+- Running retro when run_retro_auto is false
+- Not running correct-course after a successful retro when run_retro_auto is true
 
 **Master Rule:** Skipping steps, optimizing sequences, or not following exact instructions is FORBIDDEN and constitutes SYSTEM FAILURE.

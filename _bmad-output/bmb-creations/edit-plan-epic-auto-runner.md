@@ -2,7 +2,8 @@
 mode: edit
 targetWorkflowPath: '_bmad/bmm/workflows/4-implementation/epic-auto-runner'
 workflowName: 'epic-auto-runner'
-editSessionDate: '2026-03-08'
+editSessionDate: '2026-03-09'
+previousSessionDate: '2026-03-08'
 stepsCompleted:
   - step-e-01-assess-workflow.md
   - step-e-02-discover-edits.md
@@ -120,7 +121,7 @@ In real projects, story dependencies cross epic boundaries. The user needs to do
 
 ---
 
-## Completion Summary
+## Completion Summary (Session 1 — 2026-03-08)
 
 **Completed:** 2026-03-08
 **Session Duration:** Single session
@@ -133,3 +134,64 @@ In real projects, story dependencies cross epic boundaries. The user needs to do
 **Final Validation Status:** PASS with warnings (step-01 220 lines, step-02 216 lines — both within 250 max)
 
 **Workflow is ready for:** Testing — recommend running the workflow end-to-end with a real story list to verify behavior
+
+---
+
+## Session 2 — 2026-03-09
+
+### Edit Goals
+
+#### 1. Global QA automate toggle (step-01, step-03, step-04)
+- Ask user at story selection time: run QA automate automatically? (y/n)
+- Store as `run_qa_automate` flag
+- step-03: skip automate sub-agent with log entry when flag is false
+- step-04: show skipped state in summary table
+
+#### 2. Global retro auto/manual toggle (step-01, step-02, step-03, step-04)
+- Ask user at story selection time: run retrospective automatically? (y/n)
+- Store as `run_retro_auto` flag
+- step-02 inline retro: skip with log entry when flag is false
+- step-03 catch-up retro: skip with log entry when flag is false
+- step-04: show skipped state in summary table
+
+#### 3. Correct-course (fix implementation) after each retro (step-02, step-03, step-04)
+- After every successful retro (inline or catch-up), spawn Architect agent with `/bmad-bmm-correct-course`
+- Pass retro doc path and epic context
+- On success: commit `"correct-course epic-{N}"` (or `"correct-course epic-{N} (catch-up)"`)
+- On failure: log and continue
+- Only runs when `run_retro_auto` is true (no retro = no fixes)
+- step-04: add correct-course column to epic-level results table
+
+### Edits Applied (Session 2)
+
+**[step file]** `steps-c/step-01-init.md`
+- ✅ Added §3b: new run mode questions (QA automate + retro) with display prompt
+- ✅ Updated CONTEXT BOUNDARIES to include new flags
+- ✅ Updated §7 run plan to show run mode summary
+- ✅ Updated §8 context store to include new flags
+- ✅ Updated SUCCESS/FAILURE metrics
+
+**[step file]** `steps-c/step-02-story-cycle.md`
+- ✅ Updated CONTEXT BOUNDARIES to include new flags
+- ✅ §6: gated inline retro on `run_retro_auto` flag (skip path + log)
+- ✅ §6: added correct-course sub-agent (Architect) after successful inline retro
+- ✅ Updated SUCCESS/FAILURE metrics
+
+**[step file]** `steps-c/step-03-epic-wrap.md`
+- ✅ Updated CONTEXT BOUNDARIES to include new flags
+- ✅ §3: gated automate sub-agent on `run_qa_automate` flag (skip path + log)
+- ✅ §4: gated catch-up retro on `run_retro_auto` flag (skip path + log)
+- ✅ §4: added correct-course sub-agent (Architect) after successful catch-up retro
+- ✅ Updated SUCCESS/FAILURE metrics
+
+**[step file]** `steps-c/step-04-complete.md`
+- ✅ Updated CONTEXT BOUNDARIES to include new flags
+- ✅ Added correct-course column to epic-level results table
+- ✅ Added skipped (manual) states to example rows and totals
+- ✅ Updated terminal display to show correct-course status per epic
+
+### Completion Summary (Session 2)
+
+**Completed:** 2026-03-09
+**Total Edits:** 4 files modified
+**New Features:** run_qa_automate flag, run_retro_auto flag, correct-course post-retro invocation

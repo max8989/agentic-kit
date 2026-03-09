@@ -36,7 +36,7 @@ Finalize the autonomous build cycle run by writing the final summary to the erro
 
 ## CONTEXT BOUNDARIES:
 
-- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path from step-01/step-02/step-03
+- Available: ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path, run_qa_automate, run_retro_auto from step-01/step-02/step-03
 - Focus: Summarize and report only — no more execution
 - Dependencies: step-02 and step-03 must have completed
 
@@ -69,19 +69,24 @@ Append a `## Summary` section to the error log file:
 
 ### Epic-Level Results
 
-| Epic | Automate (QA) | Retro | Retro Trigger |
-|------|--------------|-------|---------------|
-| 1    | ✅ OK        | ✅ OK | inline (after story #14) |
-| 11   | ✅ OK        | ⏭️ skipped | not all stories complete |
-| 3    | ✅ OK        | ❌ FAILED | catch-up |
+| Epic | Automate (QA) | Retro | Retro Trigger | Correct-Course |
+|------|--------------|-------|---------------|----------------|
+| 1    | ✅ OK        | ✅ OK | inline (after story #14) | ✅ OK |
+| 11   | ✅ OK        | ⏭️ skipped | not all stories complete | ⏭️ n/a |
+| 3    | ⏭️ manual   | ⏭️ manual | manual run requested | ⏭️ n/a |
+| 4    | ✅ OK        | ❌ FAILED | catch-up | ⏭️ skipped (retro failed) |
 
 ### Totals
 - Stories fully completed: {count}
 - Stories partially completed: {count}
 - Stories with failures: {count}
 - Epic automate (QA) completed: {count}
+- Epic automate (QA) skipped (manual): {count}
 - Epic retros completed: {count} (inline: {count}, catch-up: {count})
 - Epic retros skipped (incomplete): {count}
+- Epic retros skipped (manual): {count}
+- Correct-course completed: {count}
+- Correct-course skipped: {count}
 ```
 
 ### 3. Display Run Summary to User
@@ -102,7 +107,7 @@ Completed at: {current_datetime}
 
 Epic Wrap-Up:
 {for each epic}
-  Epic {n}: automate ✅/❌ | retro ✅/❌/⏭️ ({trigger})
+  Epic {n}: automate ✅/❌/⏭️ | retro ✅/❌/⏭️ ({trigger}) | correct-course ✅/❌/⏭️
 
 {if any failures}
 ⚠️  {total_failure_count} failure(s) logged to:

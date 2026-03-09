@@ -1,6 +1,6 @@
 ---
 name: 'step-01-init'
-description: 'Validate Git MCP, accept ordered story list, load sprint-status.yaml, resolve stories and epic completion tracking'
+description: 'Validate Git MCP, accept ordered story list, set QA automate and retro run modes, load sprint-status.yaml, resolve stories and epic completion tracking'
 
 nextStepFile: './step-02-story-cycle.md'
 ---
@@ -33,13 +33,14 @@ Validate prerequisites, accept an ordered list of story IDs from the user, resol
 - 🎯 Use subprocess optimization (Pattern 3) to load sprint-status.yaml - return only stories for requested IDs
 - ⚙️ If subprocess unavailable: load and parse sprint-status.yaml in main thread
 - 💬 This is the only step where user interaction happens
+- 🎯 Collect run mode preferences (QA automate, retro) before confirming the run plan
 
 ## EXECUTION PROTOCOLS:
 
 - 🎯 Validate Git MCP installation before anything else
 - 🎯 Parse sprint-status.yaml and resolve each story ID in the user's ordered list
 - 🎯 Derive involved epics and load ALL stories per epic (for completion tracking)
-- 💾 Store ordered_stories, all_stories_per_epic, epic_completion_status, and error_log_path in working context
+- 💾 Store ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path, run_qa_automate, and run_retro_auto in working context
 - 🚫 FORBIDDEN to load next step until all prerequisites pass and story order is confirmed
 
 ## CONTEXT BOUNDARIES:
@@ -71,8 +72,6 @@ To install:
 
 Once installed, restart and re-run this workflow.
 ```
-
-**Note on model configuration:** Agent models are configured in `opencode.json` (not in this workflow). If you want different models per agent (e.g., Sonnet for dev, Opus for complex review), configure them there before running.
 
 ### 2. Locate sprint-status.yaml
 
@@ -107,6 +106,30 @@ Story IDs (in order):
 ```
 
 Wait for user input. Parse the comma-separated list into `ordered_story_ids` array, preserving order.
+
+### 3b. Collect Run Mode Preferences
+
+After receiving the story list, display:
+
+```
+⚙️ RUN MODE OPTIONS
+
+Please answer the following before we start:
+
+1. Run QA automate step automatically at the end? (y/n)
+   → If "n", automate will be skipped and you run it manually after the workflow.
+
+2. Run retrospective automatically when an epic completes? (y/n)
+   → If "n", retro will be skipped and you run it manually after the workflow.
+      Note: correct-course (fix implementation) also requires auto retro to run.
+
+Your choices (e.g. "y y" or "y n"):
+```
+
+Wait for user input. Parse the two answers and store:
+- `run_qa_automate` = true if user answered "y" to question 1, false if "n"
+- `run_retro_auto` = true if user answered "y" to question 2, false if "n"
+If input is ambiguous, re-ask the specific question before proceeding.
 
 ### 4. Resolve Stories Against sprint-status.yaml
 
@@ -175,6 +198,11 @@ Epic Completion Tracking:
   ...
   → Retro will auto-trigger when all stories for an epic are complete
 
+Run Mode:
+  QA Automate (end of run): {run_qa_automate ? "✅ AUTO" : "⏭️ MANUAL (skipped)"}
+  Retrospective:            {run_retro_auto  ? "✅ AUTO" : "⏭️ MANUAL (skipped)"}
+  Correct-Course fixes:     {run_retro_auto  ? "✅ AUTO (runs after each retro)" : "⏭️ MANUAL (skipped — requires auto retro)"}
+
 Error log: {error_log_path}
 
 [C] Start autonomous build cycle
@@ -191,7 +219,7 @@ Display: **Select:** [C] Start
 
 #### Menu Handling Logic:
 
-- IF C: Store ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path in context, then load, read entire file, then execute {nextStepFile}
+- IF C: Store ordered_stories, all_stories_per_epic, epic_completion_status, error_log_path, run_qa_automate, run_retro_auto in context, then load, read entire file, then execute {nextStepFile}
 - IF Any other: help user, then redisplay menu
 
 ---
@@ -205,8 +233,9 @@ Display: **Select:** [C] Start
 - Ordered story list accepted from user
 - Each story resolved against sprint-status.yaml
 - Epic completion tracking initialized
+- Run mode preferences collected (run_qa_automate, run_retro_auto)
 - Error log initialized
-- Run plan displayed and confirmed
+- Run plan displayed with run mode summary and confirmed
 
 ### ❌ SYSTEM FAILURE:
 
@@ -215,6 +244,7 @@ Display: **Select:** [C] Start
 - Starting build cycle without user confirmation
 - Not resolving stories against sprint-status.yaml
 - Not initializing epic completion tracking
+- Not collecting run mode preferences before handoff
 - Not initializing error log before handoff
 
 **Master Rule:** Skipping steps, optimizing sequences, or not following exact instructions is FORBIDDEN and constitutes SYSTEM FAILURE.
