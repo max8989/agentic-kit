@@ -77,14 +77,14 @@ cp -r agentic-kit/_bmad/agents/toolkit-advisor/ your-project/_bmad/agents/
 cp -r agentic-kit/_bmad/_memory/toolkit-advisor-sidecar/ your-project/_bmad/_memory/
 
 # Custom workflow (Epic Auto Runner)
-cp -r agentic-kit/_bmad/bmm/workflows/4-implementation/epic-auto-runner/ \
-      your-project/_bmad/bmm/workflows/4-implementation/
+cp -r ~/repos/agentic-kit/_bmad/bmm/workflows/4-implementation/epic-auto-runner/ \
+      _bmad/bmm/workflows/4-implementation/
 
 # Slash commands — copy only the ones for the pieces you added
 # Claude Code:
-cp agentic-kit/.claude/commands/bmad-bmm-epic-auto-runner.md your-project/.claude/commands/
+cp ~/repos/agentic-kit/.claude/commands/bmad-bmm-epic-auto-runner.md .claude/commands/
 # OpenCode:
-cp agentic-kit/.opencode/commands/bmad-bmm-epic-auto-runner.md your-project/.opencode/commands/
+cp ~/repos/agentic-kit/.opencode/commands/bmad-bmm-epic-auto-runner.md .opencode/command/
 
 # Register: add rows to your project's agent-manifest.csv and workflow-manifest.csv
 ```
