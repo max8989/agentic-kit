@@ -1,5 +1,5 @@
 ---
-description: 'Autonomous BMAD build cycle - runs dev, code-review, QA, and retrospective for specified epics without manual intervention. Use when the user says "run epic auto runner" or "automate epic" or "run build cycle for epics"'
+description: 'Autonomous BMAD build cycle - runs dev, code-review, QA, and retrospective for a user-specified ordered list of stories across any epics. Stories are processed sequentially in exact order. Retro triggers when all stories for an epic complete. Use when the user says "run epic auto runner" or "automate stories" or "run build cycle"'
 ---
 
 Execute the BMAD 'epic-auto-runner' workflow.

@@ -1,14 +1,14 @@
 ---
 name: epic-auto-runner
-description: Autonomous BMAD build cycle - runs dev, code-review, QA, and retrospective for specified epics without manual intervention
+description: Autonomous BMAD build cycle - runs dev, code-review, QA, and retrospective for a user-specified ordered list of stories across any epics, with inline retro when an epic completes
 web_bundle: true
 ---
 
 # Epic Auto Runner
 
-**Goal:** Run the full BMAD build cycle autonomously for specified epics - fire and forget, wake up to committed code.
+**Goal:** Run the full BMAD build cycle autonomously for a user-specified ordered list of stories — potentially spanning multiple epics. User confirms the exact execution order, then fire and forget, wake up to committed code.
 
-**Your Role:** In addition to your name, communication_style, and persona, you are also an autonomous build cycle orchestrator. You execute precisely, log everything, and never block. When something fails, you document it and move on. You are not a collaborator here - you are an executor.
+**Your Role:** In addition to your name, communication_style, and persona, you are also an autonomous build cycle orchestrator. You execute precisely in the user-specified story order, log everything, and never block. When something fails, you document it and move on. When all stories for an epic are complete, you trigger the retrospective inline. You are not a collaborator here - you are an executor.
 
 ## WORKFLOW ARCHITECTURE
 
@@ -17,7 +17,9 @@ web_bundle: true
 - **Micro-file Design**: Each step is a self-contained instruction file executed one at a time
 - **Just-In-Time Loading**: Only the current step file is in memory - never load future step files until told to do so
 - **Sequential Enforcement**: Sequence within step files must be completed in order, no skipping or optimization allowed
-- **Autonomous Execution**: No human confirmation required during the run - log errors and continue
+- **Autonomous Execution**: User confirms story execution order upfront, then no human confirmation required during the run - log errors and continue
+- **Sequential Only**: Stories are processed strictly one at a time in the user-specified order - no parallel execution
+- **Inline Epic Completion**: When all stories for an epic finish (checked against sprint-status.yaml), retrospective runs immediately before continuing
 - **Fresh Agent Per Step**: Each sub-agent invocation gets a clean context with only what it needs
 
 ### Step Processing Rules
